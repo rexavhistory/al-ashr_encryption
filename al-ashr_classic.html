@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-key="appTitle">Konverter Al-Ashr Klasik (Fleksibel)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        h1 { color: #007bff; text-align: center; margin-bottom: 25px; }
+        .control-group { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background-color 0.3s; margin-right: 10px; }
+        #encryptBtn { background-color: #4CAF50; color: white; }
+        #decryptBtn { background-color: #f44336; color: white; }
+        .output { margin-top: 20px; padding: 15px; background-color: #e3f2fd; border: 1px solid #bbdefb; border-radius: 8px; min-height: 50px; white-space: pre-wrap; word-wrap: break-word; }
+        .lang-toggle { text-align: right; margin-bottom: 15px; }
+        .lang-toggle button { background: #6c757d; color: white; padding: 5px 10px; font-size: 14px; margin-left: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="lang-toggle">
+        <button id="langToggleBtn" data-lang="id">Switch to English</button>
+    </div>
+    <h1 data-lang-key="mainHeader">⏱️ Konverter Al-Ashr Klasik (Fleksibel)</h1>
+    
+    <div class="control-group">
+        <h2 data-lang-key="paramsHeader">🔑 Parameter Klasik</h2>
+        <label for="charSet" data-lang-key="charSetLabel">Set Karakter (List Kunci - Fleksibel):</label>
+        <input type="text" id="charSet" 
+               value="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789">
+               
+        <label for="durationSeconds" data-lang-key="durationLabel">Durasi Rentang (Detik):</label>
+        <input type="number" id="durationSeconds" value="1500" min="1" placeholder="Contoh: 1500 (25 menit)">
+        
+        <label for="startTime" data-lang-key="startTimeLabel">Waktu Mulai Offset (HH:MM:SS):</label>
+        <input type="text" id="startTime" value="00:00:00" placeholder="Contoh: 07:00:00">
+    </div>
+
+    <div class="control-group">
+        <h2 data-lang-key="encryptHeader">➡️ Enkripsi</h2>
+        <label for="plaintext" data-lang-key="plaintextLabel">Teks Asli (Plaintext):</label>
+        <textarea id="plaintext" rows="3" data-lang-placeholder="plaintextPlaceholder"></textarea>
+        <button id="encryptBtn" data-lang-key="encryptButton">ENKRIPSI KLASIK</button>
+    </div>
+
+    <div class="control-group">
+        <h2 data-lang-key="decryptHeader">⬅️ Dekripsi</h2>
+        <label for="ciphertext" data-lang-key="ciphertextLabel">Waktu Tersandi (Ciphertext):</label>
+        <textarea id="ciphertext" rows="3" data-lang-placeholder="ciphertextPlaceholder"></textarea>
+        <button id="decryptBtn" data-lang-key="decryptButton">DEKRIPSI KLASIK</button>
+    </div>
+
+    <h2 data-lang-key="resultHeader">Hasil Konversi</h2>
+    <div class="output" id="outputResult" data-lang-key="initialStatus">Siap untuk konversi.</div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DATA BAHASA ---
+        const translations = {
+            'id': {
+                appTitle: 'Konverter Al-Ashr Klasik (Fleksibel)',
+                mainHeader: '⏱️ Konverter Al-Ashr Klasik (Fleksibel)',
+                paramsHeader: '🔑 Parameter Klasik',
+                charSetLabel: 'Set Karakter (List Kunci - Fleksibel):',
+                durationLabel: 'Durasi Rentang (Detik):',
+                startTimeLabel: 'Waktu Mulai Offset (HH:MM:SS):',
+                encryptHeader: '➡️ Enkripsi',
+                plaintextLabel: 'Teks Asli (Plaintext):',
+                plaintextPlaceholder: 'Masukkan teks yang ingin dienkripsi. Contoh: JOHNDOE',
+                encryptButton: 'ENKRIPSI KLASIK',
+                decryptHeader: '⬅️ Dekripsi',
+                ciphertextLabel: 'Waktu Tersandi (Ciphertext):',
+                ciphertextPlaceholder: 'Masukkan waktu yang dipisahkan koma (HH:MM:SS, HH:MM:SS, ...).',
+                decryptButton: 'DEKRIPSI KLASIK',
+                resultHeader: 'Hasil Konversi',
+                initialStatus: 'Siap untuk konversi.',
+                langToggle: 'Switch to English',
+                invalidTimeFormat: 'Format waktu tidak valid.',
+                unregisteredChar: 'Karakter tidak terdaftar: '
+            },
+            'en': {
+                appTitle: 'Classical Al-Ashr Converter (Flexible)',
+                mainHeader: '⏱️ Classical Al-Ashr Converter (Flexible)',
+                paramsHeader: '🔑 Classical Parameters',
+                charSetLabel: 'Character Set (Flexible Key List):',
+                durationLabel: 'Range Duration (Seconds):',
+                startTimeLabel: 'Start Time Offset (HH:MM:SS):',
+                encryptHeader: '➡️ Encryption',
+                plaintextLabel: 'Original Text (Plaintext):',
+                plaintextPlaceholder: 'Enter the text to be encrypted. Example: JOHNDOE',
+                encryptButton: 'CLASSICAL ENCRYPT',
+                decryptHeader: '⬅️ Decryption',
+                ciphertextLabel: 'Cipher Time (Ciphertext):',
+                ciphertextPlaceholder: 'Enter comma-separated times (HH:MM:SS, HH:MM:SS, ...).',
+                decryptButton: 'CLASSICAL DECRYPT',
+                resultHeader: 'Conversion Result',
+                initialStatus: 'Ready for conversion.',
+                langToggle: 'Ganti ke Indonesia',
+                invalidTimeFormat: 'Invalid time format.',
+                unregisteredChar: 'Unregistered character: '
+            }
+        };
+
+        let currentLang = 'id';
+
+        function updateLanguage(lang) {
+            const t = translations[lang];
+            
+            // Update Text Nodes
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            
+            // Update Placeholders
+            document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-lang-placeholder');
+                if (t[key]) {
+                    el.setAttribute('placeholder', t[key]);
+                }
+            });
+
+            // Update Lang Toggle Button
+            const langToggleBtn = document.getElementById('langToggleBtn');
+            langToggleBtn.textContent = t.langToggle;
+            langToggleBtn.setAttribute('data-lang', lang);
+
+            // Update Title
+            document.title = t.appTitle;
+
+            currentLang = lang;
+        }
+
+        // --- HANDLER BAHASA ---
+        document.getElementById('langToggleBtn').addEventListener('click', (e) => {
+            const newLang = currentLang === 'id' ? 'en' : 'id';
+            updateLanguage(newLang);
+        });
+
+        // Inisialisasi bahasa saat dimuat
+        updateLanguage('id');
+
+        // --- LOGIKA AL-ASHR KLASIK ---
+        const SECONDS_IN_MINUTE = 60;
+        const SECONDS_IN_HOUR = 3600;
+        const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
+        const secondsInDayBigInt = BigInt(SECONDS_IN_DAY);
+
+        function timeToSeconds(timeStr) {
+            const parts = timeStr.split(':').map(p => parseInt(p.trim(), 10));
+            // Mengembalikan NaN jika format salah, untuk validasi di bawah
+            if (parts.length !== 3 || parts.some(isNaN) || parts[0] > 23 || parts[1] > 59 || parts[2] > 59) return NaN; 
+            return parts[0] * SECONDS_IN_HOUR + parts[1] * SECONDS_IN_MINUTE + parts[2];
+        }
+
+        function secondsToTime(totalSeconds) {
+            const h = Math.floor(totalSeconds / SECONDS_IN_HOUR);
+            const m = Math.floor((totalSeconds % SECONDS_IN_HOUR) / SECONDS_IN_MINUTE);
+            const s = totalSeconds % SECONDS_IN_MINUTE;
+            
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function getParams() {
+            const durationSecondsNum = parseInt(document.getElementById('durationSeconds').value, 10);
+            const durationSeconds = BigInt(durationSecondsNum > 0 ? durationSecondsNum : 1);
+            
+            const startTimeSecondsNum = timeToSeconds(document.getElementById('startTime').value);
+            const startTimeSeconds = BigInt(startTimeSecondsNum);
+            
+            const charSet = document.getElementById('charSet').value;
+
+            // Tambahkan validasi sederhana untuk waktu
+            if (isNaN(startTimeSecondsNum)) {
+                return { error: translations[currentLang].invalidTimeFormat };
+            }
+            return { durationSeconds, startTimeSeconds, charSet };
+        }
+
+        // --- ENKRIPSI KLASIK ---
+        document.getElementById('encryptBtn').addEventListener('click', () => {
+            const params = getParams();
+            if (params.error) {
+                document.getElementById('outputResult').textContent = params.error;
+                return;
+            }
+            const { durationSeconds, startTimeSeconds, charSet } = params;
+            const plaintext = document.getElementById('plaintext').value; 
+            let resultDisplay = [];
+
+            for (const char of plaintext) {
+                const charIndex = charSet.indexOf(char);
+
+                if (charIndex !== -1) {
+                    const entryStartSec = BigInt(charIndex) * durationSeconds;
+                    
+                    const randomOffset = BigInt(Math.floor(Math.random() * Number(durationSeconds)));
+                    const P_AMT = entryStartSec + randomOffset;
+                    
+                    const C_final_Sec = P_AMT + startTimeSeconds;
+                    
+                    resultDisplay.push(secondsToTime(Number(C_final_Sec % secondsInDayBigInt)));
+                } else {
+                     resultDisplay.push(`!${char}`); 
+                }
+            }
+            const finalCiphertext = resultDisplay.join(', ');
+            document.getElementById('outputResult').textContent = finalCiphertext;
+            document.getElementById('ciphertext').value = finalCiphertext;
+        });
+
+        // --- DEKRIPSI KLASIK ---
+        document.getElementById('decryptBtn').addEventListener('click', () => {
+            const params = getParams();
+             if (params.error) {
+                document.getElementById('outputResult').textContent = params.error;
+                return;
+            }
+            const { durationSeconds, startTimeSeconds, charSet } = params;
+            const ciphertext = document.getElementById('ciphertext').value;
+            const cipherTimes = ciphertext.split(',').map(t => t.trim()).filter(t => t.length > 0);
+            
+            // Hitung total rentang detik maksimal yang valid
+            const totalMaxSec = BigInt(charSet.length) * durationSeconds; 
+            
+            let result = '';
+
+            for (const timeStr of cipherTimes) {
+                if (timeStr.startsWith('!')) {
+                    result += timeStr.substring(1);
+                    continue;
+                }
+                
+                // 1. Numerikalisasi Waktu Tersandi
+                const timeSecNum = timeToSeconds(timeStr);
+                if (isNaN(timeSecNum)) {
+                    result += `[${translations[currentLang].unregisteredChar}${timeStr}]`;
+                    continue;
+                }
+                const timeSec = BigInt(timeSecNum);
+                
+                // 2. Pulihkan Detik Dasar (P_AMT) dengan menghapus Offset Waktu Mulai
+                let P_AMT_Recovered = timeSec - startTimeSeconds;
+                P_AMT_Recovered = (P_AMT_Recovered % secondsInDayBigInt + secondsInDayBigInt) % secondsInDayBigInt; 
+
+                // 3. Temukan Indeks: P_AMT_Recovered / Durasi Detik
+                const index = P_AMT_Recovered / durationSeconds;
+                
+                let foundChar = '?';
+
+                // Cek batas: pastikan P_AMT berada dalam total rentang yang valid
+                if (P_AMT_Recovered < totalMaxSec) {
+                    // Memastikan indeks berada dalam batas set karakter
+                    if (index < BigInt(charSet.length)) {
+                        foundChar = charSet.charAt(Number(index));
+                    }
+                }
+                
+                result += foundChar;
+            }
+            document.getElementById('outputResult').textContent = result;
+        });
+    });
+</script>
+
+</body>
+</html>
